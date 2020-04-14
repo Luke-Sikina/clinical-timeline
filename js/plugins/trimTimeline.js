@@ -8,10 +8,6 @@ function trimClinicalTimeline(name, spec){
   this.id = "trimClinicalTimeline";
 }
 
-function isBrowserZoomed() {
-  return Math.round(window.devicePixelRatio * 100) !== 100;
-}
-
 /**
  * runs the trimClinicalTimeline plugin
  * @param  {function} timeline    clinicalTimeline object
@@ -20,7 +16,7 @@ function isBrowserZoomed() {
 trimClinicalTimeline.prototype.run = function (timeline, spec) {
   // skip when browser zoomed in, because trimming behaves oddly in those
   // cases
-  if (isBrowserZoomed()) {
+  if (timeline.zoomFactor() !== 1) {
       return;
   }
   var toleranceRatio = 0.2, //cut the timeline after how much of inactivity in terms of percentage of width of timeline

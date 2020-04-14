@@ -120,15 +120,18 @@ var clinicalTimeline = (function(){
           addTrackTooltip($(this), allData);
         }
       });
-      // Add track button
-      svg.attr("height", parseInt(svg.attr("height")) + 15);
-      svg.insert("text")
-        .attr("transform", "translate(0,"+svg.attr("height")+")")
-        .attr("class", "timeline-label")
-        .text("Add track")
-        .attr("id", "addtrack");
-      addNewTrackTooltip($("#addtrack"));
     }
+
+      // Add track button. Hide, but still add if no track tooltips to stop text collisions.
+    svg.attr("height", parseInt(svg.attr("height")) + 15);
+    svg.insert("text")
+    .attr("transform", "translate(0,"+svg.attr("height")+")")
+      .attr("class", "timeline-label")
+      .style("visibility", enableTrackTooltips ? "" : "hidden")
+      .text("Add track")
+      .attr("id", "addtrack");
+    addNewTrackTooltip($("#addtrack"));
+
     svg.insert("text")
       .attr("transform", "translate(0, 15)")
       .attr("class", "timeline-label")
@@ -404,6 +407,52 @@ var clinicalTimeline = (function(){
       if ("color" in times[i]) {
         delete times[i].color;
       }
+    }
+  }
+
+  function formatDayMonthYear(time) {
+    if (Math.abs(time.m) === 12) {
+      time.y = time.y + time.m / 12;
+      time.m = 0;
+    }
+  
+    if (time.y !== 0) {
+      if (time.m !== 0) {
+        if (time.d !== 0) {
+          return time.y + "y" + Math.abs(time.m) + "m" + Math.abs(time.d) + "d";
+        } else {
+          return time.y + "y" + Math.abs(time.m) + "m";
+        }
+      } else if (time.d !== 0) {
+        return time.y + "y" + Math.abs(time.d) + "d";
+      } else {
+        return time.y + "y";
+      }
+    } else if (time.m !== 0) {
+      if (time.d !== 0) {
+        return time.m + "m" + Math.abs(time.d) + "d";
+      } else {
+        return time.m + "m";
+      }
+    } else {
+      return time.d + "d";
+    }
+  }
+  
+  function formatMonthYear(time) {
+    if (Math.abs(time.m) === 12) {
+      time.y = time.y + time.m / 12;
+      time.m = 0;
+    }
+  
+    if (time.y !== 0) {
+      if (time.m !== 0) {
+        return time.y + "y" + Math.abs(time.m) + "m";
+      } else {
+        return time.y + "y";
+      }
+    } else {
+      return time.m + "m";
     }
   }
 
@@ -750,12 +799,10 @@ var clinicalTimeline = (function(){
             case "days":
             case "3days":
             case "10days":
-              d = time.toDays();
-              dayFormat = d + "d";
+              dayFormat = formatDayMonthYear(time);
               break;
             case "months":
-              m = time.m + 12 * time.y;
-              dayFormat = m + "m";
+              dayFormat = formatMonthYear(time);
               break;
             case "years":
               y = time.y;
